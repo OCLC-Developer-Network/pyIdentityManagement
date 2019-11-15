@@ -9,7 +9,6 @@ import requests
 import os
 from io import StringIO
 import time
-from ebcli.lib.utils import save_file_from_url
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
 credentials = boto3.Session().get_credentials()
@@ -19,7 +18,7 @@ s3 = boto3.client('s3')
 # load key/secret config info
 # read a configuration file
 with open("config.yml", 'r') as stream:
-    config = yaml.load(stream)
+    config = yaml.safe_load(stream)
     
 serviceURL = config.get('IDM_service_url')    
 # get a token
@@ -56,14 +55,14 @@ def findUser(identifier):
 
 def getUser(principalId):
     try:
-        r = oauth_session.post(serviceURL + "/" + principalId, headers={"Accept":"application/json"})
+        r = oauth_session.get(serviceURL + "/" + principalId, headers={"Accept":"application/json"})
         r.raise_for_status
         try:
             result = r.json()
             first_name = result['name']['givenName']            
             last_name = result['name']['familyName']
             barcode = result['urn:mace:oclc.org:eidm:schema:persona:wmscircpatroninfo:20180101']['circulationInfo']['barcode']
-            expiration_date = ['urn:mace:oclc.org:eidm:schema:persona:persona:20180305']['oclcExpirationDate']
+            expiration_date = result['urn:mace:oclc.org:eidm:schema:persona:persona:20180305']['oclcExpirationDate']
             status = "success"
         except json.decoder.JSONDecodeError:
             status = "failed"
