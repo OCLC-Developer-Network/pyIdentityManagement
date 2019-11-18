@@ -32,6 +32,53 @@ try:
 except BaseException as err:
     print(err)
     
+def createUserJSON(fields):    
+    jsonInput = {
+        "schemas": [
+              "urn:ietf:params:scim:schemas:core:2.0:User",
+              "urn:mace:oclc.org:eidm:schema:persona:correlationinfo:20180101",
+              "urn:mace:oclc.org:eidm:schema:persona:persona:20180305",
+              "urn:mace:oclc.org:eidm:schema:persona:wmscircpatroninfo:20180101",
+              "urn:mace:oclc.org:eidm:schema:persona:wsillinfo:20180101"
+            ],
+            "name": {
+              "familyName": fields['familyName'],
+              "givenName": fields['givenName'],
+              "middleName": fields['middleName'],
+              "honorificPrefix": fields['honorificPrefix'],
+              "honorificSuffix": fields['honorificSuffix']
+            },
+            "emails": [
+                  {
+                    "value": fields['email'],
+                    "type": "home",
+                    "primary": true
+                  }
+                ],
+            "addresses": [
+              {
+                "streetAddress": fields['streetAddress'],
+                "locality": fields['locality'],
+                "region": fields['region'],
+                "postalCode": fields['postalCode'],
+                "type": "home",
+                "primary": false
+              }
+            ],
+            "urn:mace:oclc.org:eidm:schema:persona:wmscircpatroninfo:20180101": {
+                  "circulationInfo": {
+                    "barcode": fields['barcode'],
+                    "borrowerCategory": fields['borrowerCategory'],
+                    "homeBranch": fields['homeBranch']
+                  }                  
+          },
+          "urn:mace:oclc.org:eidm:schema:persona:persona:20180305": {
+              "institutionId": fields['institution']
+          }
+      }
+    
+    return jsonInput
+
 def findUser(identifier):
     filter = 'barcode eq "' + identifier + '"'
     search_body = {
@@ -83,7 +130,7 @@ def deleteUser(principalId):
     return pd.Series([principalId, status])
 
 def addUser(fields):
-    input = "";
+    input = createUserJSON(fields);
     
     try:
         r = oauth_session.post(serviceURL + "/", data=input, headers={"Accept": "application/scim+json"})
