@@ -32,7 +32,26 @@ try:
 except BaseException as err:
     print(err)
     
-def createUserJSON(fields):    
+def createUserJSON(user_fields):
+        
+    name = {
+              "familyName": user_fields.get('familyName'),
+              "givenName": user_fields.get('givenName'),
+              "middleName": user_fields.get('middleName'),
+              "honorificPrefix": user_fields.get('honorificPrefix'),
+              "honorificSuffix": user_fields.get('honorificSuffix')
+            }
+    
+    if user_fields.get('barcode') and user_fields.get('borrowerCategory') and user_fields.get('homeBranch'):
+        
+        circInfo = {
+                        "barcode": user_fields.get('barcode'),
+                        "borrowerCategory": user_fields.get('borrowerCategory'),
+                        "homeBranch": user_fields.get('homeBranch')
+                      }
+    else:
+        circInfo = {}
+        
     jsonInput = {
         "schemas": [
               "urn:ietf:params:scim:schemas:core:2.0:User",
@@ -41,39 +60,29 @@ def createUserJSON(fields):
               "urn:mace:oclc.org:eidm:schema:persona:wmscircpatroninfo:20180101",
               "urn:mace:oclc.org:eidm:schema:persona:wsillinfo:20180101"
             ],
-            "name": {
-              "familyName": fields['familyName'],
-              "givenName": fields['givenName'],
-              "middleName": fields['middleName'],
-              "honorificPrefix": fields['honorificPrefix'],
-              "honorificSuffix": fields['honorificSuffix']
-            },
+            "name": name,
             "emails": [
                   {
-                    "value": fields['email'],
+                    "value": user_fields.get('email'),
                     "type": "home",
-                    "primary": true
+                    "primary": True
                   }
                 ],
             "addresses": [
               {
-                "streetAddress": fields['streetAddress'],
-                "locality": fields['locality'],
-                "region": fields['region'],
-                "postalCode": fields['postalCode'],
+                "streetAddress": user_fields.get('streetAddress'),
+                "locality": user_fields.get('locality'),
+                "region": user_fields.get('region'),
+                "postalCode": user_fields.get('postalCode'),
                 "type": "home",
-                "primary": false
+                "primary": False
               }
             ],
             "urn:mace:oclc.org:eidm:schema:persona:wmscircpatroninfo:20180101": {
-                  "circulationInfo": {
-                    "barcode": fields['barcode'],
-                    "borrowerCategory": fields['borrowerCategory'],
-                    "homeBranch": fields['homeBranch']
-                  }                  
+                  "circulationInfo": circInfo                 
           },
           "urn:mace:oclc.org:eidm:schema:persona:persona:20180305": {
-              "institutionId": fields['institution']
+              "institutionId": user_fields.get('institution')
           }
       }
     
@@ -129,8 +138,8 @@ def deleteUser(principalId):
         status = "failed"
     return pd.Series([principalId, status])
 
-def addUser(fields):
-    input = createUserJSON(fields);
+def addUser(user_fields):
+    input = createUserJSON(user_fields);
     
     try:
         r = oauth_session.post(serviceURL + "/", data=input, headers={"Accept": "application/scim+json"})
