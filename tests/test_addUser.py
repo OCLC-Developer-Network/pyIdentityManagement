@@ -2,7 +2,7 @@ import pytest
 import json
 import requests_mock
 import pandas
-import handler
+from src import make_requests
 
 with open('tests/mocks/createUserResponse.json', 'r') as myfile:
     data=myfile.read()
@@ -10,7 +10,8 @@ with open('tests/mocks/createUserResponse.json', 'r') as myfile:
 # parse file
 userMock = json.loads(data)
 
-def test_getUser(requests_mock):
+def test_getUser(requests_mock, mockOAuthSession, getTestConfig):
+    getTestConfig.update({'oauth-session': mockOAuthSession})
     requests_mock.register_uri('POST', 'https://128807.share.worldcat.org/idaas/scim/v2/Users/', status_code=200, json=userMock)
     user_fields = {
             "givenName": "Stacy", 
@@ -23,7 +24,7 @@ def test_getUser(requests_mock):
             "institution": 128807
             }
     
-    user = handler.addUser(user_fields);
+    user = make_requests.addUser(getTestConfig, user_fields);
     assert type(user) is pandas.core.series.Series
     assert user[0] == '3ac7346f-3b61-4aa9-bcea-e0179f0a3c77'
     assert user[1] == 'success'

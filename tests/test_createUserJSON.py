@@ -1,6 +1,6 @@
 import pytest
 import json
-import handler
+from src import make_requests
 
 # with open('tests/mocks/createUserInput.json', 'r') as myfile:
 #     data=myfile.read()
@@ -20,7 +20,7 @@ def test_createUserJSON():
             "institution": 128807
             }
     
-    userJSON = handler.createUserJSON(user_fields);
+    userJSON =  make_requests.createUserJSON(user_fields);
     assert type(userJSON) is dict
     assert userJSON.get("name").get("givenName") == "Stacy"
     assert userJSON.get("name").get("familyName") == "Smith (test)"

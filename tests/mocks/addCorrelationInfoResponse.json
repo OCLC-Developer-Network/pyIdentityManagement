@@ -25,10 +25,10 @@
   ],
   "addresses": [
     {
-      "streetAddress": "6565 Kilgour Pl",
+      "streetAddress": " 6565 Kilgour Pl",
       "locality": "Dublin",
       "region": "OH",
-      "postalCode": "43017",
+      "postalCode": " 43017",
       "type": "home",
       "primary": false
     }
@@ -38,7 +38,12 @@
       {
         "sourceSystem": "urn:mace:oclc:idm:ocpsb",
         "idAtSource": "069cc81f-395d-4272-86f2-99b54d8fbc29"
-      }
+      },
+      {
+        "sourceSystem": "https://some-organization-idm.org/SAML",
+        "idAtSource": "smithk"
+      }      
+      
     ]
   },
   "urn:mace:oclc.org:eidm:schema:persona:persona:20180305": {

@@ -1,0 +1,7 @@
+key: key
+secret: secret
+auth_url: https://oauth.oclc.org/auth
+token_url: https://oauth.oclc.org/token
+scim_service_url: https://128807.share.worldcat.org/idaas/scim/v2/Users
+base_path: /
+institution_symbol: OCPSB
