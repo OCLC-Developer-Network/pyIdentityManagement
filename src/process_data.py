@@ -20,6 +20,6 @@ def findUsersInfo(processConfig, csv_read):
     return csv_read    
 
 def addUserCorrelationInfo(processConfig, csv_read):  
-    csv_read[['principalId', 'status']] = csv_read.apply (lambda row: make_requests.addCorrelationInfo(row['principalId'], row['sourceSystem'], row['sourceSystemID']), axis=1)    
+    csv_read[['principalId', 'status']] = csv_read.apply (lambda row: make_requests.addCorrelationInfo(row['principalID'], row['sourceSystem'], row['sourceSystemID']), axis=1)    
     return csv_read    
         

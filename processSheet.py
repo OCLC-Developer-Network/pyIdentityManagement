@@ -35,16 +35,32 @@ def process(args):
         csv_read = handle_files.loadCSV(item_file) 
         
         if operation == "getUsers":
-            csv_read = process_data.retrieveUsers(processConfig, csv_read)
+            if 'principalID' in csv_read.columns.values.tolist():
+                csv_read = process_data.retrieveUsers(processConfig, csv_read)
+            else:
+                sys.exit("CSV does not contain column principalID")
         elif operation == "createUsers":
-            csv_read = process_data.createNewUsers(processConfig, csv_read)    
-        elif operation == "deleteUsers":                
-            csv_read = process_data.deleteUserInfo(processConfig, csv_read)   
+            requiredFields = []
+            if all(item in requiredFields for item in csv_read):
+                csv_read = process_data.createNewUsers(processConfig, csv_read)
+            else:
+                sys.exit("CSV does not contain column principalID")
+        elif operation == "deleteUsers":  
+            if 'principalID' in csv_read.columns.values.tolist():              
+                csv_read = process_data.deleteUserInfo(processConfig, csv_read)
+            else:
+                sys.exit("CSV does not contain column principalID")       
         elif operation == "findUsers":
-            csv_read = process_data.findUsersInfo(processConfig, csv_read)
+            if 'barcode' in csv_read.columns.values.tolist():
+                csv_read = process_data.findUsersInfo(processConfig, csv_read)
+            else:
+                sys.exit("CSV does not contain column barcode")    
         elif operation == "addCorrelationInfoToUsers":
-            csv_read = process_data.addCorrelationInfo(processConfig, csv_read)            
-    
+            requiredFields['principalID', 'sourceSystem', 'sourceSystemID']
+            if all(item in requiredFields for item in csv_read):
+                csv_read = process_data.addCorrelationInfo(processConfig, csv_read)            
+            else:
+                sys.exit("CSV does not contain columns principalID, sourceSystem, sourceSystemID")
         return handle_files.saveFileLocal(csv_read, output_dir)
 
     except BaseException as err:
