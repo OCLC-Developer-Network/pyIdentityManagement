@@ -5,7 +5,6 @@ import pandas as pd
 import json
 import requests
 from io import StringIO
-import time
 
 def createOAuthSession(config, scope):    
     auth = HTTPBasicAuth(config.get('key'), config.get('secret'))
@@ -17,7 +16,7 @@ def createOAuthSession(config, scope):
     except BaseException as err:
         return err
 
-def findUser(config, identifier):
+def findUser(config, identifier, sourceSystemName=None):
     oauth_session = config.get('oauth-session')
     filter = 'barcode eq "' + identifier + '"'
     search_body = {
@@ -30,14 +29,24 @@ def findUser(config, identifier):
         try:
             result = r.json()
             principalId = result['Resources'][0]['urn:mace:oclc.org:eidm:schema:persona:persona:20180305']['oclcPPID']
+            if sourceSystemName:
+                correlationIds = result['Resources'][0]['urn:mace:oclc.org:eidm:schema:persona:correlationinfo:20180101']['correlationInfo']
+                specifiedSourceName = [x for x in correlationIds if x['sourceSystem'] == sourceSystemName]
+                if len(specifiedSourceName) > 0 : 
+                    sourceSystemId = specifiedSourceName[0]['idAtSource']
+                else:
+                    sourceSystemId = ""
+            else:
+                sourceSystemId = ""       
             status = "success"
         except json.decoder.JSONDecodeError:
             principalId = ""
+            sourceSystemId = ""
             status = "failed"
     except requests.exceptions.HTTPError as err:
         principalId = ""
         status = "failed"
-    return pd.Series([principalId, status])
+    return pd.Series([principalId, sourceSystemId, status])
 
 def getUser(config, principalId):
     oauth_session = config.get('oauth-session')

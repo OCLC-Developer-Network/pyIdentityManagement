@@ -4,22 +4,26 @@ from src import make_requests
 import pandas as pd
 
 def retrieveUsers(processConfig, csv_read):
-    csv_read[['first_name', 'last_name', 'barcode', 'expiration_date', 'status']] = csv_read.apply (lambda row: make_requests.getUser(row['principalId']), axis=1)    
+    csv_read[['first_name', 'last_name', 'barcode', 'expiration_date', 'status']] = csv_read.apply (lambda row: make_requests.getUser(processConfig, row['principalId']), axis=1)    
     return csv_read 
 
 def createNewUsers(processConfig, csv_read):
-    csv_read[['principalId', 'status']] = csv_read.apply (lambda row: make_requests.createUser(row), axis=1)    
+    csv_read[['principalId', 'status']] = csv_read.apply (lambda row: make_requests.createUser(processConfig, row), axis=1)    
     return csv_read  
 
 def deleteUserInfo(processConfig, csv_read):      
-    csv_read[['principalId', 'status']] = csv_read.apply (lambda row: make_requests.deleteUser(row['principalID']), axis=1)
+    csv_read[['principalId', 'status']] = csv_read.apply (lambda row: make_requests.deleteUser(processConfig, row['principalID']), axis=1)
     return csv_read    
 
 def findUsersInfo(processConfig, csv_read):  
-    csv_read[['principalId', 'status']] = csv_read.apply (lambda row: make_requests.findUser(row['barcode']), axis=1)    
+    csv_read[['principalId', 'status']] = csv_read.apply (lambda row: make_requests.findUser(processConfig, row['barcode']), axis=1)    
+    return csv_read
+
+def findUserCorrelationInfo(processConfig, csv_read):  
+    csv_read[['principalId', 'correlationId', 'status']] = csv_read.apply (lambda row: make_requests.findUser(processConfig, row['barcode'], row['sourceSystemId']), axis=1)    
     return csv_read    
 
 def addUserCorrelationInfo(processConfig, csv_read):  
-    csv_read[['principalId', 'status']] = csv_read.apply (lambda row: make_requests.addCorrelationInfo(row['principalID'], row['sourceSystem'], row['sourceSystemID']), axis=1)    
+    csv_read[['principalId', 'status']] = csv_read.apply (lambda row: make_requests.addCorrelationInfo(processConfig, row['principalID'], row['sourceSystem'], row['sourceSystemID']), axis=1)    
     return csv_read    
         
