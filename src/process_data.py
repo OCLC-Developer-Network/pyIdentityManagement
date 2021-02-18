@@ -4,7 +4,7 @@ from src import make_requests
 import pandas as pd
 
 def retrieveUsers(processConfig, csv_read):
-    csv_read[['first_name', 'last_name', 'barcode', 'expiration_date', 'status']] = csv_read.apply (lambda row: make_requests.getUser(processConfig, row['principalId']), axis=1)    
+    csv_read[['principalId', 'first_name', 'last_name', 'barcode', 'expiration_date', 'status']] = csv_read.apply (lambda row: make_requests.getUser(processConfig, row['principalId']), axis=1)    
     return csv_read 
 
 def createNewUsers(processConfig, csv_read):

@@ -64,7 +64,7 @@ def getUser(config, principalId):
             status = "failed"
     except requests.exceptions.HTTPError as err:
         status = "failed"
-    return pd.Series([first_name, last_name, barcode, expiration_date, status])
+    return pd.Series([principalId, first_name, last_name, barcode, expiration_date, status])
 
 def deleteUser(config, principalId):
     oauth_session = config.get('oauth-session')
