@@ -12,7 +12,7 @@ def createNewUsers(processConfig, csv_read):
     return csv_read  
 
 def deleteUserInfo(processConfig, csv_read):      
-    csv_read[['principalId', 'status']] = csv_read.apply (lambda row: make_requests.deleteUser(processConfig, row['principalID']), axis=1)
+    csv_read[['principalId', 'status']] = csv_read.apply (lambda row: make_requests.deleteUser(processConfig, row['principalId']), axis=1)
     return csv_read    
 
 def findUsersInfo(processConfig, csv_read):  
