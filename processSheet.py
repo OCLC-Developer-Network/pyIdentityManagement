@@ -54,7 +54,13 @@ def process(args):
             if 'barcode' in csv_read.columns.values.tolist():
                 csv_read = process_data.findUsersInfo(processConfig, csv_read)
             else:
-                sys.exit("CSV does not contain column barcode")    
+                sys.exit("CSV does not contain column barcode") 
+        elif operation == "findUserCorrelationInfo":
+            requiredFields['barcode', 'sourceSystem', 'sourceSystemID']
+            if all(item in requiredFields for item in csv_read):
+                csv_read = process_data.findUserCorrelationInfo(processConfig, csv_read)
+            else:
+                sys.exit("CSV does not contain column barcode")                    
         elif operation == "addCorrelationInfoToUsers":
             requiredFields['principalID', 'sourceSystem', 'sourceSystemID']
             if all(item in requiredFields for item in csv_read):
