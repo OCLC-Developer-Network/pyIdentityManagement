@@ -18,7 +18,7 @@ def createOAuthSession(config, scope):
 
 def findUser(config, identifier, sourceSystemName=None):
     oauth_session = config.get('oauth-session')
-    filter = 'barcode eq "' + identifier + '"'
+    filter = 'barcode eq "' + str(identifier) + '"'
     search_body = {
                 "schemas": ["urn:ietf:params:scim:api:messages:2.0:SearchRequest"],
                 "filter": filter       
@@ -35,18 +35,18 @@ def findUser(config, identifier, sourceSystemName=None):
                 if len(specifiedSourceName) > 0 : 
                     sourceSystemId = specifiedSourceName[0]['idAtSource']
                 else:
-                    sourceSystemId = ""
+                    sourceSystemId = None
             else:
-                sourceSystemId = ""       
+                sourceSystemId = None       
             status = "success"
         except json.decoder.JSONDecodeError:
-            principalId = ""
-            sourceSystemId = ""
+            principalId = None
+            sourceSystemId = None
             status = "failed"
     except requests.exceptions.HTTPError as err:
-        principalId = ""
+        principalId = None
         status = "failed"
-    return pd.Series([principalId, sourceSystemId, status])
+    return pd.Series([identifier, sourceSystemName, principalId, sourceSystemId, status])
 
 def getUser(config, principalId):
     oauth_session = config.get('oauth-session')

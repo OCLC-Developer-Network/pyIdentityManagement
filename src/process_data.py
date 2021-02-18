@@ -16,11 +16,11 @@ def deleteUserInfo(processConfig, csv_read):
     return csv_read    
 
 def findUsersInfo(processConfig, csv_read):  
-    csv_read[['principalId', 'status']] = csv_read.apply (lambda row: make_requests.findUser(processConfig, row['barcode']), axis=1)    
+    csv_read[['barcode', 'sourceSystem', 'principalId', 'sourceSystemId', 'status']] = csv_read.apply (lambda row: make_requests.findUser(processConfig, row['barcode']), axis=1)    
     return csv_read
 
 def findUserCorrelationInfo(processConfig, csv_read):  
-    csv_read[['principalId', 'correlationId', 'status']] = csv_read.apply (lambda row: make_requests.findUser(processConfig, row['barcode'], row['sourceSystemId']), axis=1)    
+    csv_read[['barcode', 'sourceSystem', 'principalId', 'sourceSystemId', 'status']] = csv_read.apply (lambda row: make_requests.findUser(processConfig, row['barcode'], row['sourceSystem']), axis=1)    
     return csv_read    
 
 def addUserCorrelationInfo(processConfig, csv_read):  

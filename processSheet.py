@@ -12,7 +12,7 @@ def processArgs():
     try:
         parser = argparse.ArgumentParser()
         parser.add_argument('--itemFile', required=True, help='File you want to process')
-        parser.add_argument('--operation', required=True, choices=['getUsers', 'createUsers', 'deleteUsers', 'findUsers', 'addCorrelationInfoToUsers'], help='Operation to run: getUsers, createUsers, deleteUsers, findUsers, addCorrelationInfoToUsers')    
+        parser.add_argument('--operation', required=True, choices=['getUsers', 'createUsers', 'deleteUsers', 'findUsers', 'addCorrelationInfoToUsers', 'findUserCorrelationInfo'], help='Operation to run: getUsers, createUsers, deleteUsers, findUsers, addCorrelationInfoToUsers')    
         parser.add_argument('--outputDir', required=True, help='Directory to save output to')        
     
         args = parser.parse_args()
@@ -56,11 +56,11 @@ def process(args):
             else:
                 sys.exit("CSV does not contain column barcode") 
         elif operation == "findUserCorrelationInfo":
-            requiredFields['barcode', 'sourceSystem', 'sourceSystemID']
+            requiredFields['barcode', 'sourceSystem']
             if all(item in requiredFields for item in csv_read):
                 csv_read = process_data.findUserCorrelationInfo(processConfig, csv_read)
             else:
-                sys.exit("CSV does not contain column barcode")                    
+                sys.exit("CSV does not contain columns barcode and sourceSystem")                    
         elif operation == "addCorrelationInfoToUsers":
             requiredFields['principalID', 'sourceSystem', 'sourceSystemID']
             if all(item in requiredFields for item in csv_read):
