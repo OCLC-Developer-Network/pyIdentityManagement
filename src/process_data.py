@@ -8,7 +8,7 @@ def retrieveUsers(processConfig, csv_read):
     return csv_read 
 
 def createNewUsers(processConfig, csv_read):
-    csv_read[['principalId', 'status']] = csv_read.apply (lambda row: make_requests.createUser(processConfig, row), axis=1)    
+    csv_read[['givenName', 'familyName','streetAddress','locality','region','postalCode','institution','barcode','borrowerCategory','homeBranch', 'expiration_date', 'principalId', 'status']] = csv_read.apply (lambda row: make_requests.addUser(processConfig, row), axis=1)    
     return csv_read  
 
 def deleteUserInfo(processConfig, csv_read):      

@@ -43,6 +43,7 @@
     "institutionId": "128807",
     "oclcNamespace": "urn:oclc:platform:128807",
     "oclcUsername": "coombsk@oclc.org",
+    "oclcExpirationDate": "2018-09-07T00:00:00Z",    
     "nameInfoCanSelfEdit": false
   },
   "urn:mace:oclc.org:eidm:schema:persona:wmscircpatroninfo:20180101": {

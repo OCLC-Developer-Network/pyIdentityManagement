@@ -26,7 +26,7 @@ def test_getUser(requests_mock, mockOAuthSession, getTestConfig):
     
     user = make_requests.addUser(getTestConfig, user_fields);
     assert type(user) is pandas.core.series.Series
-    assert user[0] == '3ac7346f-3b61-4aa9-bcea-e0179f0a3c77'
-    assert user[1] == 'success'
+    assert user[11] == '3ac7346f-3b61-4aa9-bcea-e0179f0a3c77'
+    assert user[12] == 'success'
     
     

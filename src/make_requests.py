@@ -145,6 +145,18 @@ def addUser(config, user_fields):
         try:
             result = r.json()            
             principalId = result['urn:mace:oclc.org:eidm:schema:persona:persona:20180305']['oclcPPID']
+            givenName = result['name']['givenName']            
+            familyName = result['name']['familyName']
+            addresses = result['addresses']
+            streetAddress = addresses[0]['streetAddress']
+            locality = addresses[0]['locality']
+            region = addresses[0]['region']
+            postalCode = addresses[0]['postalCode']
+            institution = result['urn:mace:oclc.org:eidm:schema:persona:persona:20180305']['institutionId']
+            barcode = result['urn:mace:oclc.org:eidm:schema:persona:wmscircpatroninfo:20180101']['circulationInfo']['barcode']
+            borrowerCategory = result['urn:mace:oclc.org:eidm:schema:persona:wmscircpatroninfo:20180101']['circulationInfo']['borrowerCategory']
+            homeBranch = result['urn:mace:oclc.org:eidm:schema:persona:wmscircpatroninfo:20180101']['circulationInfo']['homeBranch']
+            expiration_date = result['urn:mace:oclc.org:eidm:schema:persona:persona:20180305']['oclcExpirationDate']            
             status = "success"
         except json.decoder.JSONDecodeError:
             principalId = ""
@@ -152,7 +164,7 @@ def addUser(config, user_fields):
     except requests.exceptions.HTTPError as err:
         principalId = ""
         status = "failed"
-    return pd.Series([principalId, status]) 
+    return pd.Series([givenName, familyName, streetAddress, locality, region, postalCode, institution, barcode, borrowerCategory, homeBranch, expiration_date, principalId, status]) 
 
 def addCorrelationInfo(config, principalId, sourceSystem, sourceSystemId):
     oauth_session = config.get('oauth-session')
