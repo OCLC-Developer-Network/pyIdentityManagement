@@ -14,26 +14,51 @@ or download directly from GitHub.
 
 Change into the application directory
 
-### Step 2: Install dependencies
-
-```
-pip install -r
-```
-
-### Step 3: Use npm to install dependencies needed to deploy code
-Download node and npm and use the `install` command to read the dependencies JSON file 
+### Step 2: Setup Virtual Environment
 
 ```bash
-$ npm install
+$ python -m venv venv
+$ . venv/bin/activate
+```
+
+### Step 3: Install python dependencies
+
+```bash
+$ pip install -r requirements.txt
 ```
 
 ### Step 4: Run local tests
 
+```bash
+$ python -m pytest
 ```
-python -m pytest
+### Step 5: Run code locally
+```bash
+usage: processSheet.py [-h] --itemFile ITEMFILE --operation
+                  {getUsers,createUsers,deleteUsers,findUsers,addCorrelationInfoToUsers,findUserCorrelationInfo}
+                  --outputDir OUTPUTDIR
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --itemFile ITEMFILE   File you want to process
+  --operation {getUsers,createUsers,deleteUsers,findUsers,addCorrelationInfoToUsers,findUserCorrelationInfo}
+                        Operation to run: getUsers,
+                        createUsers, deleteUsers,
+                        addCorrelationInfoToUsers,
+                        findUserCorrelationInfo
+  --outputDir OUTPUTDIR
+                        Directory to save output to                                                                       
+                        
 ```
 
-### Step 5: AWS Setup
+#### Example
+```bash
+$ python processSheet.py --itemFile samples/barcodes.csv --operation findUsers --outputDir samples/principalIDs.csv
+```
+
+## Running in AWS Lambda
+
+### Step 1: AWS Setup
 
 1. Install AWS Commandline tools
 - https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html
@@ -45,14 +70,14 @@ I reccomend using pip.
 -- key/secret
 -- region
     
-### Step 6: Create an S3 Bucket for the files
+### Step 2: Create an S3 Bucket for the files
 1. Use the AWS Console to create a bucket. Note your bucket name!!!
 2. Create folder idm_events/
 3. Add a sample csv file of user identifier data
 4. Add a sample csv file of user barcode data
 
 
-### Step 7: Test application
+### Step 3: Test application
 1. Alter s3_event.json to point to your bucket and your sample txt file.
 
 2. Use serverless to test locally

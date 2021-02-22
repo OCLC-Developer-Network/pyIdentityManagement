@@ -16,6 +16,7 @@ def processArgs():
         parser.add_argument('--outputDir', required=True, help='Directory to save output to')        
     
         args = parser.parse_args()
+        return args
     except SystemExit:
         raise
     
@@ -56,13 +57,13 @@ def process(args):
             else:
                 sys.exit("CSV does not contain column barcode") 
         elif operation == "findUserCorrelationInfo":
-            requiredFields['barcode', 'sourceSystem']
+            requiredFields = ['barcode', 'sourceSystem']
             if all(item in requiredFields for item in csv_read):
                 csv_read = process_data.findUserCorrelationInfo(processConfig, csv_read)
             else:
                 sys.exit("CSV does not contain columns barcode and sourceSystem")                    
         elif operation == "addCorrelationInfoToUsers":
-            requiredFields['principalID', 'sourceSystem', 'sourceSystemID']
+            requiredFields = ['principalID', 'sourceSystem', 'sourceSystemID']
             if all(item in requiredFields for item in csv_read):
                 csv_read = process_data.addCorrelationInfo(processConfig, csv_read)            
             else:
@@ -70,7 +71,7 @@ def process(args):
         return handle_files.saveFileLocal(csv_read, output_dir)
 
     except BaseException as err:
-        result = 'no access token ' + str(err)
+        result = str(err)
         return result   
 
 if __name__ == '__processSheet__':

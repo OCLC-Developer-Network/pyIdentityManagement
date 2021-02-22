@@ -18,13 +18,13 @@ def createOAuthSession(config, scope):
 
 def findUser(config, identifier, sourceSystemName=None):
     oauth_session = config.get('oauth-session')
-    filter = 'barcode eq "' + str(identifier) + '"'
+    filter = 'External_ID eq "' + str(identifier) + '"'
     search_body = {
                 "schemas": ["urn:ietf:params:scim:api:messages:2.0:SearchRequest"],
                 "filter": filter       
         }
     try:
-        r = oauth_session.post(config.get('scim_service_url') + "/.search", data= search_body,headers={"Accept":"application/json"})
+        r = oauth_session.post(config.get('scim_service_url') + "/.search", data= json.dumps(search_body),headers={"Content-Type":"application/scim+json", "Accept":"application/scim+json"})
         r.raise_for_status
         try:
             result = r.json()
@@ -51,7 +51,7 @@ def findUser(config, identifier, sourceSystemName=None):
 def getUser(config, principalId):
     oauth_session = config.get('oauth-session')
     try:
-        r = oauth_session.get(config.get('scim_service_url') + "/" + principalId, headers={"Accept":"application/json"})
+        r = oauth_session.get(config.get('scim_service_url') + "/" + principalId, headers={"Accept":"application/scim+json"})
         r.raise_for_status
         try:
             result = r.json()
@@ -133,7 +133,7 @@ def createUserJSON(user_fields):
           }
       }
     
-    return jsonInput
+    return json.dumps(jsonInput)
 
 def addUser(config, user_fields):
     oauth_session = config.get('oauth-session')
