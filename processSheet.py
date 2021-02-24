@@ -41,7 +41,6 @@ def validateOperation(csv_read, operation):
         requiredFields = ['principalId', 'sourceSystem', 'sourceSystemId']
         if not all(item in csv_read.columns.values.tolist() for item in requiredFields):
             sys.exit("CSV does not contain columns principalId, sourceSystem, sourceSystemId")
-    return operation
    
 def process(args):
     item_file = handle_files.readFileFromLocal(args.itemFile) 
@@ -50,23 +49,36 @@ def process(args):
     output_dir = args.outputDir
 
     csv_read = handle_files.loadCSV(item_file)     
-    process_function = validateOperation(csv_read, operation)
-    
-    # get a token
-    scope = ['SCIM']
     try:
-        oauth_session = make_requests.createOAuthSession(config, scope)
+        validateOperation(csv_read, operation)
     
-        config.update({"oauth-session": oauth_session})
-        processConfig = config
-
-        csv_read = process_data.process_function(processConfig, csv_read)        
-        return handle_files.saveFileLocal(csv_read, output_dir)
-
-    except BaseException as err:
-        result = str(err)
-        return result   
-
+        # get a token
+        scope = ['SCIM']
+        try:
+            oauth_session = make_requests.createOAuthSession(config, scope)
+        
+            config.update({"oauth-session": oauth_session})
+            processConfig = config
+            if operation == "getUsers":
+                csv_read = process_data.getUsers(processConfig, csv_read)
+            elif operation == "createUsers":
+                csv_read = process_data.createUsers(processConfig, csv_read)
+            elif operation == "deleteUsers":  
+                csv_read = process_data.deleteUsers(processConfig, csv_read)
+            elif operation == "findUsers":
+                csv_read = process_data.findUsers(processConfig, csv_read)
+            elif operation == "findUserCorrelationInfo":
+                csv_read = process_data.findUserCorrelationInfo(processConfig, csv_read)    
+            elif operation == "addCorrelationInfoToUsers":                
+                csv_read = process_data.addUserCorrelationInfo(processConfig, csv_read)        
+            return handle_files.saveFileLocal(csv_read, output_dir)
+    
+        except BaseException as err:
+            result = str(err)
+            return result   
+    except SystemExit as err:
+        return err 
+           
 if __name__ == '__processSheet__':
     try:
         args = processArgs()
