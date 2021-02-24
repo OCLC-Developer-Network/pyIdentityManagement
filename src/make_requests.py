@@ -173,7 +173,7 @@ def addCorrelationInfo(config, principalId, sourceSystem, sourceSystemId):
         r.raise_for_status
         try:
             result = r.json()
-            input = addCorrelationInfoJSON(result, sourceSystem, sourceSystemId)
+            input = json.dumps(addCorrelationInfoJSON(result, sourceSystem, sourceSystemId))
             try:
                 r = oauth_session.put(config.get('scim_service_url') + "/" + principalId, data=input, headers={"Content-Type":"application/scim+json", "Accept": "application/scim+json"})
                 r.raise_for_status
