@@ -25,20 +25,26 @@ def findUser(config, identifier, sourceSystemName=None):
         }
     try:
         r = oauth_session.post(config.get('scim_service_url') + "/.search", data= json.dumps(search_body),headers={"Content-Type":"application/scim+json", "Accept":"application/scim+json"})
-        r.raise_for_status
+        r.raise_for_status()
         try:
             result = r.json()
-            principalId = result['Resources'][0]['urn:mace:oclc.org:eidm:schema:persona:persona:20180305']['oclcPPID']
-            if sourceSystemName and result.get('Resources')[0].get('urn:mace:oclc.org:eidm:schema:persona:correlationinfo:20180101') :
-                correlationIds = result['Resources'][0]['urn:mace:oclc.org:eidm:schema:persona:correlationinfo:20180101']['correlationInfo']
-                specifiedSourceName = [x for x in correlationIds if x['sourceSystem'] == sourceSystemName]
-                if len(specifiedSourceName) > 0 : 
-                    sourceSystemId = specifiedSourceName[0]['idAtSource']
+            if len(result.get('Resources')) > 0:
+                principalId = result.get('Resources')[0].get('urn:mace:oclc.org:eidm:schema:persona:persona:20180305').get('oclcPPID')
+                if sourceSystemName and result.get('Resources')[0].get('urn:mace:oclc.org:eidm:schema:persona:correlationinfo:20180101') :
+                    correlationIds = result.get('Resources')[0].get('urn:mace:oclc.org:eidm:schema:persona:correlationinfo:20180101').get('correlationInfo')
+                    specifiedSourceName = [x for x in correlationIds if x['sourceSystem'] == sourceSystemName]
+                    if len(specifiedSourceName) > 0 : 
+                        sourceSystemId = specifiedSourceName[0]['idAtSource']
+                    else:
+                        sourceSystemId = None
+                    status = "success"
                 else:
-                    sourceSystemId = None
+                    sourceSystemId = None       
+                    status = "success"
             else:
-                sourceSystemId = None       
-            status = "success"
+                principalId = None
+                sourceSystemId = None
+                status = "failed - no results"            
         except json.decoder.JSONDecodeError:
             principalId = None
             sourceSystemId = None
@@ -52,13 +58,13 @@ def getUser(config, principalId):
     oauth_session = config.get('oauth-session')
     try:
         r = oauth_session.get(config.get('scim_service_url') + "/" + principalId, headers={"Accept":"application/scim+json"})
-        r.raise_for_status
+        r.raise_for_status()
         try:
             result = r.json()
-            first_name = result['name']['givenName']            
-            last_name = result['name']['familyName']
-            barcode = result['urn:mace:oclc.org:eidm:schema:persona:wmscircpatroninfo:20180101']['circulationInfo']['barcode']
-            expiration_date = result['urn:mace:oclc.org:eidm:schema:persona:persona:20180305']['oclcExpirationDate']
+            first_name = result.get('name').get('givenName')            
+            last_name = result.get('name').get('familyName')
+            barcode = result.get('urn:mace:oclc.org:eidm:schema:persona:wmscircpatroninfo:20180101').get('circulationInfo').get('barcode')
+            expiration_date = result.get('urn:mace:oclc.org:eidm:schema:persona:persona:20180305').get('oclcExpirationDate')
             status = "success"
         except json.decoder.JSONDecodeError:
             status = "failed"
@@ -70,7 +76,7 @@ def deleteUser(config, principalId):
     oauth_session = config.get('oauth-session')
     try:
         r = oauth_session.delete(config.get('scim_service_url') + "/" + principalId, headers={"Accept":"application/json"})
-        r.raise_for_status
+        r.raise_for_status()
         try:
             status = "success"
         except json.decoder.JSONDecodeError:
@@ -141,7 +147,7 @@ def addUser(config, user_fields):
     
     try:
         r = oauth_session.post(config.get('scim_service_url') + "/", data=input, headers={"Content-Type":"application/scim+json", "Accept": "application/scim+json"})
-        r.raise_for_status
+        r.raise_for_status()
         try:
             result = r.json()            
             principalId = result['urn:mace:oclc.org:eidm:schema:persona:persona:20180305']['oclcPPID']
@@ -170,16 +176,15 @@ def addCorrelationInfo(config, principalId, sourceSystem, sourceSystemId):
     oauth_session = config.get('oauth-session')
     try:
         r = oauth_session.get(config.get('scim_service_url') + "/" + principalId, headers={"Accept":"application/scim+json"})
-        r.raise_for_status
+        r.raise_for_status()
         try:
             result = r.json()
             input = json.dumps(addCorrelationInfoJSON(result, sourceSystem, sourceSystemId))
             try:
                 r = oauth_session.put(config.get('scim_service_url') + "/" + principalId, data=input, headers={"Content-Type":"application/scim+json", "Accept": "application/scim+json"})
-                r.raise_for_status
+                r.raise_for_status()
                 try:
                     result = r.json()            
-                    principalId = result['urn:mace:oclc.org:eidm:schema:persona:persona:20180305']['oclcPPID']
                     status = "success"
                 except json.decoder.JSONDecodeError:
                     status = "failed"
