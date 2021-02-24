@@ -18,13 +18,39 @@ def processArgs():
         args = parser.parse_args()
         return args
     except SystemExit:
-        raise
-    
+        raise        
+def validateOperation(csv_read, operation):
+    if operation == "getUsers":
+        if 'principalId' not in csv_read.columns.values.tolist():
+            sys.exit("CSV does not contain column principalId")
+    elif operation == "createUsers":
+        requiredFields = ['name']
+        if not all(item in csv_read.columns.values.tolist() for item in requiredFields): 
+            sys.exit("CSV does not contain column name")
+    elif operation == "deleteUsers":  
+        if 'principalId' not in csv_read.columns.values.tolist():              
+            sys.exit("CSV does not contain column principalId")       
+    elif operation == "findUsers":
+        if 'barcode' not in csv_read.columns.values.tolist():
+            sys.exit("CSV does not contain column barcode") 
+    elif operation == "findUserCorrelationInfo":
+        requiredFields = ['barcode', 'sourceSystem']
+        if not all(item in csv_read.columns.values.tolist() for item in requiredFields):   
+            sys.exit("CSV does not contain columns barcode and sourceSystem")                    
+    elif operation == "addCorrelationInfoToUsers":
+        requiredFields = ['principalId', 'sourceSystem', 'sourceSystemId']
+        if not all(item in csv_read.columns.values.tolist() for item in requiredFields):
+            sys.exit("CSV does not contain columns principalId, sourceSystem, sourceSystemId")
+    return operation
+   
 def process(args):
     item_file = handle_files.readFileFromLocal(args.itemFile) 
     
     operation = args.operation
     output_dir = args.outputDir
+
+    csv_read = handle_files.loadCSV(item_file)     
+    process_function = validateOperation(csv_read, operation)
     
     # get a token
     scope = ['SCIM']
@@ -33,41 +59,8 @@ def process(args):
     
         config.update({"oauth-session": oauth_session})
         processConfig = config
-        csv_read = handle_files.loadCSV(item_file) 
-        
-        if operation == "getUsers":
-            if 'principalID' in csv_read.columns.values.tolist():
-                csv_read = process_data.retrieveUsers(processConfig, csv_read)
-            else:
-                sys.exit("CSV does not contain column principalID")
-        elif operation == "createUsers":
-            requiredFields = []
-            if all(item in requiredFields for item in csv_read):
-                csv_read = process_data.createNewUsers(processConfig, csv_read)
-            else:
-                sys.exit("CSV does not contain column principalID")
-        elif operation == "deleteUsers":  
-            if 'principalID' in csv_read.columns.values.tolist():              
-                csv_read = process_data.deleteUserInfo(processConfig, csv_read)
-            else:
-                sys.exit("CSV does not contain column principalID")       
-        elif operation == "findUsers":
-            if 'barcode' in csv_read.columns.values.tolist():
-                csv_read = process_data.findUsersInfo(processConfig, csv_read)
-            else:
-                sys.exit("CSV does not contain column barcode") 
-        elif operation == "findUserCorrelationInfo":
-            requiredFields = ['barcode', 'sourceSystem']
-            if all(item in requiredFields for item in csv_read):
-                csv_read = process_data.findUserCorrelationInfo(processConfig, csv_read)
-            else:
-                sys.exit("CSV does not contain columns barcode and sourceSystem")                    
-        elif operation == "addCorrelationInfoToUsers":
-            requiredFields = ['principalID', 'sourceSystem', 'sourceSystemID']
-            if all(item in requiredFields for item in csv_read):
-                csv_read = process_data.addCorrelationInfo(processConfig, csv_read)            
-            else:
-                sys.exit("CSV does not contain columns principalID, sourceSystem, sourceSystemID")
+
+        csv_read = process_data.process_function(processConfig, csv_read)        
         return handle_files.saveFileLocal(csv_read, output_dir)
 
     except BaseException as err:
