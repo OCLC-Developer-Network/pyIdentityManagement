@@ -29,7 +29,7 @@ def findUser(config, identifier, sourceSystemName=None):
         try:
             result = r.json()
             principalId = result['Resources'][0]['urn:mace:oclc.org:eidm:schema:persona:persona:20180305']['oclcPPID']
-            if sourceSystemName:
+            if sourceSystemName and result.get('Resources')[0].get('urn:mace:oclc.org:eidm:schema:persona:correlationinfo:20180101') :
                 correlationIds = result['Resources'][0]['urn:mace:oclc.org:eidm:schema:persona:correlationinfo:20180101']['correlationInfo']
                 specifiedSourceName = [x for x in correlationIds if x['sourceSystem'] == sourceSystemName]
                 if len(specifiedSourceName) > 0 : 
