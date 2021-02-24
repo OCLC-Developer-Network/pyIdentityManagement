@@ -27,6 +27,8 @@ def test_addCorrelationInfo(requests_mock, mockOAuthSession, getTestConfig):
     user = make_requests.addCorrelationInfo(getTestConfig, principalId, sourceSystem, sourceSystemId);
     assert type(user) is pandas.core.series.Series
     assert user[0] == '1671151d-ac48-4b4d-a204-c858c3bf5d86'
-    assert user[1] == 'success'
+    assert user[1] == 'https://some-organization-idm.org/SAML'
+    assert user[2] == 'smithk'
+    assert user[3] == 'success'
     
     

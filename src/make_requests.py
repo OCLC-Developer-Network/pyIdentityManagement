@@ -133,14 +133,14 @@ def createUserJSON(user_fields):
           }
       }
     
-    return json.dumps(jsonInput)
+    return jsonInput
 
 def addUser(config, user_fields):
     oauth_session = config.get('oauth-session')
-    input = createUserJSON(user_fields);
+    input = json.dumps(createUserJSON(user_fields));
     
     try:
-        r = oauth_session.post(config.get('scim_service_url') + "/", data=input, headers={"Accept": "application/scim+json"})
+        r = oauth_session.post(config.get('scim_service_url') + "/", data=input, headers={"Content-Type":"application/scim+json", "Accept": "application/scim+json"})
         r.raise_for_status
         try:
             result = r.json()            
@@ -169,29 +169,27 @@ def addUser(config, user_fields):
 def addCorrelationInfo(config, principalId, sourceSystem, sourceSystemId):
     oauth_session = config.get('oauth-session')
     try:
-        r = oauth_session.get(config.get('scim_service_url') + "/" + principalId, headers={"Accept":"application/json"})
+        r = oauth_session.get(config.get('scim_service_url') + "/" + principalId, headers={"Accept":"application/scim+json"})
         r.raise_for_status
         try:
             result = r.json()
             input = addCorrelationInfoJSON(result, sourceSystem, sourceSystemId)
             try:
-                r = oauth_session.put(config.get('scim_service_url') + "/" + principalId, data=input, headers={"Accept": "application/scim+json"})
+                r = oauth_session.put(config.get('scim_service_url') + "/" + principalId, data=input, headers={"Content-Type":"application/scim+json", "Accept": "application/scim+json"})
                 r.raise_for_status
                 try:
                     result = r.json()            
                     principalId = result['urn:mace:oclc.org:eidm:schema:persona:persona:20180305']['oclcPPID']
                     status = "success"
                 except json.decoder.JSONDecodeError:
-                    principalId = ""
                     status = "failed"
             except requests.exceptions.HTTPError as err:
-                principalId = ""
                 status = "failed"
         except json.decoder.JSONDecodeError:
             status = "failed"
     except requests.exceptions.HTTPError as err:
         status = "failed"        
-    return pd.Series([principalId, status]) 
+    return pd.Series([principalId, sourceSystem, sourceSystemId, status]) 
 
 def addCorrelationInfoJSON(user, sourceSystem, sourceSystemId):
     user.get('urn:mace:oclc.org:eidm:schema:persona:correlationinfo:20180101').get('correlationInfo').append({"sourceSystem": sourceSystem, "idAtSource": sourceSystemId})
