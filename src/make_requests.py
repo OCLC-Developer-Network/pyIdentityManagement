@@ -48,10 +48,11 @@ def findUser(config, identifier, sourceSystemName=None):
         except json.decoder.JSONDecodeError:
             principalId = None
             sourceSystemId = None
-            status = "failed"
+            status = "failed - JSON decode issue"
     except requests.exceptions.HTTPError as err:
         principalId = None
-        status = "failed"
+        sourceSystemId = None
+        status = "failed - " + str(err)
     return pd.Series([identifier, sourceSystemName, principalId, sourceSystemId, status])
 
 def getUser(config, principalId):
@@ -67,9 +68,9 @@ def getUser(config, principalId):
             expiration_date = result.get('urn:mace:oclc.org:eidm:schema:persona:persona:20180305').get('oclcExpirationDate')
             status = "success"
         except json.decoder.JSONDecodeError:
-            status = "failed"
+            status = "failed - JSON decode issue"
     except requests.exceptions.HTTPError as err:
-        status = "failed"
+        status = "failed - " + str(err)
     return pd.Series([principalId, first_name, last_name, barcode, expiration_date, status])
 
 def deleteUser(config, principalId):
@@ -77,12 +78,8 @@ def deleteUser(config, principalId):
     try:
         r = oauth_session.delete(config.get('scim_service_url') + "/" + principalId, headers={"Accept":"application/json"})
         r.raise_for_status()
-        try:
-            status = "success"
-        except json.decoder.JSONDecodeError:
-            status = "failed"
     except requests.exceptions.HTTPError as err:
-        status = "failed"
+        status = "failed - " + str(err)
     return pd.Series([principalId, status])
 
 def createUserJSON(user_fields):
@@ -166,10 +163,10 @@ def addUser(config, user_fields):
             status = "success"
         except json.decoder.JSONDecodeError:
             principalId = ""
-            status = "failed"
+            status = "failed - JSON decode error"
     except requests.exceptions.HTTPError as err:
         principalId = ""
-        status = "failed"
+        status = "failed - " + str(err)
     return pd.Series([givenName, familyName, streetAddress, locality, region, postalCode, institution, barcode, borrowerCategory, homeBranch, expiration_date, principalId, status]) 
 
 def addCorrelationInfo(config, principalId, sourceSystem, sourceSystemId):
@@ -187,13 +184,13 @@ def addCorrelationInfo(config, principalId, sourceSystem, sourceSystemId):
                     result = r.json()            
                     status = "success"
                 except json.decoder.JSONDecodeError:
-                    status = "failed"
+                    status = "failed - JSON decode error on update"
             except requests.exceptions.HTTPError as err:
-                status = "failed"
+                status = "failed - on update - " + str(err)
         except json.decoder.JSONDecodeError:
-            status = "failed"
+            status = "failed - JSON decode error on read"
     except requests.exceptions.HTTPError as err:
-        status = "failed"        
+        status = "failed - on read - " + str(err)        
     return pd.Series([principalId, sourceSystem, sourceSystemId, status]) 
 
 def addCorrelationInfoJSON(user, sourceSystem, sourceSystemId):
